@@ -1,4 +1,5 @@
 import argparse
+from ipaddress import ip_address
 import socket
 import sys
 
@@ -47,7 +48,6 @@ class CPSC:
         df = 1
 
         command = f'MOV 1 {dir} {freq} {rss} {step} {temp} {stage} {df}'
-        # print(command)
         self._write(command)
         move_res = self._read()
         move_res = self._decode(move_res)
@@ -68,6 +68,7 @@ class CPSC:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Cryo Positioning Systems Controller Command")
     parser.add_argument("--stop", action=argparse.BooleanOptionalAction, help="Immediately stop the liner actuator")
+    parser.add_argument("-a", "--address", type=ip_address, required=True, help="IP Address of JPE CAB1-115 Unit")
     parser.add_argument("-d", "--direction", type=int, default=1, help="Direction (1 for positive movement and 0 for negative movement) [Default: 1]")
     parser.add_argument("-f", "--frequency", type=int, default=300, help="Frequency (1[Hz] to 600[Hz]) [Default: 300[Hz]]")
     parser.add_argument("-s", "--step", type=int, default=0, help="Number of actuation steps. Range 0 to 5000, where 0 is used for infinite move [Default: 0]")
@@ -75,10 +76,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # CPSC Info
-    address = ""
+    address = args.address
     port = 2000
     # Connect CPSC
-    cpsc = CPSC(address, port)
+    try:
+        cpsc = CPSC(str(address), port)
+    except TimeoutError:
+        print("Timeout error occured")
+        sys.exit(1)
 
     # Stop Liner Actuator
     if args.stop:
@@ -106,4 +111,5 @@ if __name__ == "__main__":
     # Move Liner Actuator
     print("Move command executed")
     print(f"Direction:\t{dir}\nFrequency:\t{freq}[Hz]\nStep:\t\t{step}\nTemperature:\t{temp}[K]")
-    cpsc.move_cadm2(dir, freq, step, temp)
+    # cpsc.move_cadm2(dir, freq, step, temp)
+    print(args.address)
