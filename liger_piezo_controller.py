@@ -111,5 +111,4 @@ if __name__ == "__main__":
     # Move Liner Actuator
     print("Move command executed")
     print(f"Direction:\t{dir}\nFrequency:\t{freq}[Hz]\nStep:\t\t{step}\nTemperature:\t{temp}[K]")
-    # cpsc.move_cadm2(dir, freq, step, temp)
-    print(args.address)
+    cpsc.move_cadm2(dir, freq, step, temp)
